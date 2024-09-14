@@ -1,0 +1,6 @@
+@BaseAuth_HostAddress = http://localhost:5233
+
+GET {{BaseAuth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

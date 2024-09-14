@@ -1,0 +1,31 @@
+﻿using BaseAuth.Database;
+using BaseAuth.Middleware;
+using BaseAuth.Service;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BaseAuth.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class AccountController(AppDbContext appDbContext, IAccountService accountService) : ControllerBase
+{
+    [HttpGet(Name = "GetAccounts")]
+    [Authorised]
+    public IEnumerable<string> Get()
+    {
+        Console.WriteLine("GetAccounts");
+        return appDbContext.Accounts.Select(a => a.Username).ToArray();
+    }
+
+    [HttpGet("initialize", Name = "InitializeAdminAccount")]
+    public IActionResult InitializeAdminAccount()
+    {
+        var result = accountService.InitializeAdminAccount();
+        if (result == 1)
+        {
+            return Ok("Admin account created");
+        }
+
+        return Ok("Admin account already exists");
+    }
+}
