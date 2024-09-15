@@ -1,6 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using JWT;
 using JWT.Algorithms;
 using JWT.Builder;
+using JWT.Serializers;
+using Newtonsoft.Json.Linq;
 
 namespace BaseAuth.Manager;
 
@@ -55,7 +58,7 @@ public class TokenManager
     /// <summary>
     /// A list of all tokens that have been generated
     /// </summary>
-    public static List<Token> ListTokens = [];
+    private static readonly List<Token> ListTokens = [];
 
     /// <summary>
     /// Generates a new token with the given claims
@@ -69,6 +72,23 @@ public class TokenManager
     /// <seealso cref="Token"/>
     public static Token GenerateToken(IEnumerable<KeyValuePair<string, object>> claims)
     {
+        foreach (var token in ListTokens)
+        {
+            // var roles = claimList.FirstOrDefault(c => c.Key == "roles").Value as JArray;
+            // var rolesList = roles != null ? roles.Select(r => r.ToString()).ToList() : new List<string>();
+            
+            var claimList = Claims(token.AccessToken);
+            var accUuid = claimList.FirstOrDefault(c => c.Key == "acc_uuid").Value.ToString();
+            
+            // Remove the token if it has the same user id
+            if (accUuid == claims.FirstOrDefault(c => c.Key == "acc_uuid").Value.ToString())
+            {
+                RevokeToken(token.AccessToken);
+                break;
+            }
+        }
+
+        // Generate a new access and refresh token
         var accessToken = GenerateJwt(claims, TokenType.Access);
         var refreshToken = GenerateJwt(claims, TokenType.Refresh);
 
@@ -86,7 +106,7 @@ public class TokenManager
             return token;
         }
     }
-    
+
     /// <summary>
     /// Generates a new JWT token with the given claims and lifetime
     /// </summary>
@@ -106,8 +126,10 @@ public class TokenManager
     {
         var expiresAt = DateTimeOffset.UtcNow.ToLocalTime().AddSeconds(lifetime).ToUnixTimeSeconds();
 
-        var builder = new JwtBuilder()
+        var builder = JwtBuilder.Create()
             .WithAlgorithm(new HMACSHA256Algorithm())
+            .WithJsonSerializer(new JsonNetSerializer())
+            .WithUrlEncoder(new JwtBase64UrlEncoder())
             .WithSecret("secret")
             .AddClaim("type", type)
             .AddClaim("expiredAt", expiresAt)
@@ -150,12 +172,15 @@ public class TokenManager
     /// A dictionary of claims from the given token
     /// </returns>
     /// <seealso cref="Token"/>
-    private static IDictionary<string, object> Claims(string token)
+    public static IDictionary<string, object> Claims(string token)
     {
-        return new JwtBuilder()
+        return JwtBuilder.Create()
+            .WithAlgorithm(new HMACSHA256Algorithm())
+            .WithJsonSerializer(new JsonNetSerializer())
+            .WithUrlEncoder(new JwtBase64UrlEncoder())
             .WithSecret("secret")
             .MustVerifySignature()
-            .Decode<IDictionary<string, object>>(token);
+            .Decode<Dictionary<string, object>>(token);
     }
 
     /// <summary>
@@ -176,13 +201,18 @@ public class TokenManager
     {
         try
         {
+            // Find the token in the list
+            var index = ListTokens.FindIndex(x => x.AccessToken == token || x.RefreshToken == token);
+            if (index == -1)
+                return false;
+            
             var jwt = Claims(token);
 
-            if (jwt["type"].ToString() != type.ToString())
+            if (jwt["type"].ToString() != type.GetHashCode().ToString())
                 return false;
 
-            var expiresAt = long.Parse(jwt["exp"].ToString());
-            var isExpired = DateTimeOffset.UtcNow.ToUnixTimeSeconds() < expiresAt;
+            var expiresAt = long.Parse(jwt["expiredAt"].ToString());
+            var isExpired = DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expiresAt;
 
             if (jwt["type"].ToString() == TokenType.Refresh.ToString() && isExpired)
             {
@@ -197,6 +227,21 @@ public class TokenManager
             Console.WriteLine(e.Message);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Validates the given token and checks if it is still valid (access or refresh)
+    /// </summary>
+    /// <param name="token">
+    /// The token to be validated
+    /// </param>
+    /// <returns>
+    /// True if the token is valid and has not expired, false otherwise
+    /// </returns>
+    /// <seealso cref="ValidateToken(string,BaseAuth.Manager.TokenType)"/>
+    public static bool ValidateToken(string token)
+    {
+        return ValidateToken(token, TokenType.Access) || ValidateToken(token, TokenType.Refresh);
     }
 
     /// <summary>
@@ -254,7 +299,7 @@ public class TokenManager
             // Check if the token is still valid
             if (!ValidateToken(token.RefreshToken, TokenType.Refresh))
                 return null;
-            
+
             //-- Generate a new access token --//
             // Claim the access token
             var accessClaims = Claims(token.AccessToken);
@@ -266,20 +311,22 @@ public class TokenManager
                 if (key != "type" && key != "expiredAt" && key != "expiredIn")
                     userInfo.Add(key, value);
             }
+
             var userClaims = userInfo.ToList();
 
             var newAccessToken = GenerateJwt(userClaims, TokenType.Access);
-            
+
             //-- Generate a new refresh token --//
             // Get the refresh token claims
             var refreshClaims = Claims(token.RefreshToken);
-            
+
             // Calculate the remaining lifetime of the refresh token
-            var remainingLifetime = long.Parse(refreshClaims["expiredAt"].ToString()) - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            
+            var remainingLifetime = long.Parse(refreshClaims["expiredAt"].ToString()) -
+                                    DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
             // Generate a new refresh token with the remaining lifetime
-            var newRefreshToken = GenerateJwt(userClaims, TokenType.Refresh, (int) remainingLifetime);
-            
+            var newRefreshToken = GenerateJwt(userClaims, TokenType.Refresh, (int)remainingLifetime);
+
             // Update the token in the list
             ListTokens[index] = new Token
             {
@@ -288,7 +335,7 @@ public class TokenManager
                 AccessExpiresAt = DateTimeOffset.UtcNow.ToLocalTime().AddSeconds(Token.AccessTokenLifetime).DateTime,
                 RefreshExpiresAt = DateTimeOffset.UtcNow.ToLocalTime().AddSeconds(remainingLifetime).DateTime
             };
-            
+
             return ListTokens[index];
         }
     }

@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaseAuth.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AccountController(AppDbContext appDbContext, IAccountService accountService) : ControllerBase
 {
     [HttpGet(Name = "GetAccounts")]
-    [Authorised]
+    [Authorised(["Admin"])]
     public IEnumerable<string> Get()
     {
         Console.WriteLine("GetAccounts");

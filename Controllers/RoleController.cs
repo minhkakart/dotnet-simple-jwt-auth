@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaseAuth.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class RoleController(AppDbContext appDbContext) : ControllerBase
 {
     [HttpGet(Name = "GetRoles")]
