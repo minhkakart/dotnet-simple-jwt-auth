@@ -1,4 +1,6 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Reflection;
+using BaseAuth.Middleware;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BaseAuth.Config;
@@ -38,24 +40,53 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
                     Required = true,
                     AllowEmptyValue = false
                 });*/
-                operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
-                operation.Security = new List<OpenApiSecurityRequirement>
-                {
-                    new OpenApiSecurityRequirement
-                    {
-                        [
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            }
-                        ] = []
-                    }
-                };
+                // operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
+                // operation.Security = new List<OpenApiSecurityRequirement>
+                // {
+                //     new OpenApiSecurityRequirement
+                //     {
+                //         [
+                //             new OpenApiSecurityScheme
+                //             {
+                //                 Reference = new OpenApiReference
+                //                 {
+                //                     Type = ReferenceType.SecurityScheme,
+                //                     Id = "Bearer"
+                //                 }
+                //             }
+                //         ] = []
+                //     }
+                // };
         //    }
         // throw new NotImplementedException();
+        
+        // New code
+        if (context.MethodInfo.GetCustomAttribute<AuthorisedAttribute>() != null)
+        {
+            operation.Responses.Add("400", new OpenApiResponse { Description = "Bad Request" });
+            operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
+            operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden" });
+            operation.Responses.Add("404", new OpenApiResponse { Description = "Not found" });
+            operation.Responses.Add("499", new OpenApiResponse { Description = "Request is cancelled" });
+            operation.Responses.Add("500", new OpenApiResponse { Description = "Internal Server Error" });
+            operation.Responses.Add("502", new OpenApiResponse { Description = "Bad Gateway" });
+            operation.Responses.Add("503", new OpenApiResponse { Description = "Service Unavailable" });
+            operation.Security = new List<OpenApiSecurityRequirement>
+            {
+                new OpenApiSecurityRequirement
+                {
+                    [
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        }
+                    ] = []
+                }
+            };
+        }
     }
 }

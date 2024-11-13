@@ -1,7 +1,7 @@
 using BaseAuth.Config;
 using BaseAuth.Database;
+using BaseAuth.Extension;
 using BaseAuth.Manager;
-using BaseAuth.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -34,7 +34,7 @@ var appSettings = builder.Configuration.GetSection("AppSetting");
 builder.Services.Configure<AppSetting>(appSettings);
 GlobalSetting.IncludeConfig(appSettings.Get<AppSetting>());
 
-var connectionString = GlobalSetting.AppSetting.Database.ConnectionString;
+var connectionString = GlobalSetting.AppSetting?.Database?.ConnectionString;
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
@@ -47,12 +47,10 @@ builder.Services.AddCors(x => x.AddPolicy("CorsPolicy", p =>
         .AllowAnyMethod();
 }));
 
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<TokenManager>();
+// builder.Services.AddSingleton<TokenManager>();
 
 // Add services to the container.
-builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddAppService();
 
 var app = builder.Build();
 

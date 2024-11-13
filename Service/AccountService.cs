@@ -1,15 +1,18 @@
 ﻿using BaseAuth.Database;
 using BaseAuth.Database.Entity;
+using BaseAuth.Extension;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseAuth.Service;
 
+[ScopedService]
 public interface IAccountService
 {
     public int CreateAccount(string username, string password);
     public int InitializeAdminAccount();
 }
 
+[ScopedService]
 public class AccountService(AppDbContext appDbContext) : IAccountService
 {
     public int CreateAccount(string username, string password)
@@ -19,7 +22,7 @@ public class AccountService(AppDbContext appDbContext) : IAccountService
 
     public int InitializeAdminAccount()
     {
-        var adminRole = appDbContext.Roles.Include(role => role.Accounts).FirstOrDefault(role => role.Name == "Admin");
+        var adminRole = appDbContext.Roles.Include(role => role.Accounts).First(role => role.Name == "Admin");
         
         if (adminRole.Accounts == null || adminRole.Accounts.Count == 0)
         {
