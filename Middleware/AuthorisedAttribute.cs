@@ -31,7 +31,7 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
             }
 
             var token = authorization.Substring("Bearer ".Length, authorization.Length - "Bearer ".Length).Trim();
-            if (string.IsNullOrEmpty(token) && !TokenManager.ValidateToken(token))
+            if (string.IsNullOrEmpty(token) || !TokenManager.ValidateToken(token))
             {
                 throw new AppException(ErrorCode.UnAuthorized);
             }
