@@ -1,4 +1,5 @@
-﻿using BaseAuth.Database;
+﻿using BaseAuth.AppError;
+using BaseAuth.Database;
 using BaseAuth.Database.Entity;
 using BaseAuth.Extension;
 using BaseAuth.Model.Dto;
@@ -31,6 +32,10 @@ public class UserService(AppDbContext appDbContext) : IUserService
     public UserInfo GetUserByUuid(string uuid)
     {
         var user = appDbContext.Users.FirstOrDefault(user => user.Uuid == uuid);
+        if (user == null)
+        {
+            throw new AppException(ErrorCode.UserNotFound);
+        }
         return new UserInfo
         {
             Uuid = user.Uuid,
@@ -41,6 +46,11 @@ public class UserService(AppDbContext appDbContext) : IUserService
 
     public UserInfo CreateUser(UserRequest userInfo)
     {
+        if (string.IsNullOrWhiteSpace(userInfo.FirstName) || string.IsNullOrWhiteSpace(userInfo.LastName))
+        {
+            throw new AppException(ErrorCode.MissingParameter);
+        }
+        
         var user = new User()
         {
             Uuid = Guid.NewGuid().ToString(),

@@ -7,5 +7,5 @@ public class Database
 
 public class AppSetting
 {
-    public Database? Database { get; set; }
+    public Database? Database { get; init; }
 }

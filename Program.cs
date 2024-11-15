@@ -1,13 +1,10 @@
 using BaseAuth.Config;
 using BaseAuth.Database;
 using BaseAuth.Extension;
-using BaseAuth.Manager;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,8 +22,6 @@ builder.Services.AddSwaggerGen(opt =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    //var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    //opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
     opt.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
@@ -46,8 +41,6 @@ builder.Services.AddCors(x => x.AddPolicy("CorsPolicy", p =>
         .AllowAnyHeader()
         .AllowAnyMethod();
 }));
-
-// builder.Services.AddSingleton<TokenManager>();
 
 // Add services to the container.
 builder.Services.AddAppService();

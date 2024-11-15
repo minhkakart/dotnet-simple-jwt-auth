@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
+using BaseAuth.AppError;
 using BaseAuth.Manager;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Linq;
@@ -10,8 +10,6 @@ namespace BaseAuth.Middleware;
 
 public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute, IOperationFilter
 {
-    // private readonly string[] roles = roles;
-    
     public AuthorisedAttribute() : this([])
     {
     }
@@ -27,10 +25,15 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
         try
         {
             var authorization = context.HttpContext.Request.Headers.Authorization.ToString();
+            if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            {
+                throw new AppException(ErrorCode.UnAuthorized);
+            }
+
             var token = authorization.Substring("Bearer ".Length, authorization.Length - "Bearer ".Length).Trim();
             if (string.IsNullOrEmpty(token) && !TokenManager.ValidateToken(token))
             {
-                context.Result = new UnauthorizedResult();
+                throw new AppException(ErrorCode.UnAuthorized);
             }
 
             if (roles.Length == 0)
@@ -47,10 +50,7 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
                 var userRoles = claimRoles.Select(r => r.ToString().ToLower()).ToList();
                 if (!userRoles.Intersect(GetRoles()).Any())
                 {
-                    context.Result = new ObjectResult("Forbidden")
-                    {
-                        StatusCode = 403
-                    };
+                    throw new AppException(ErrorCode.Forbidden); 
                 }
 
                 // Create a new identity with the roles
@@ -63,16 +63,12 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
             }
             else
             {
-                throw new Exception("Roles claim not found");
+                throw new AppException(ErrorCode.MissingRoles);
             }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
-            context.Result = new ObjectResult("Internal server error")
-            {
-                StatusCode = 500
-            };
+            context.Result = ResponseWrappedAttribute.OnException(e, e.StackTrace);
         }
     }
 
