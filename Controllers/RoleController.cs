@@ -1,6 +1,5 @@
 ﻿using BaseAuth.Database;
 using BaseAuth.Database.Entity;
-using BaseAuth.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaseAuth.Controllers;

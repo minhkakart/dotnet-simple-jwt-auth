@@ -1,4 +1,5 @@
-﻿using BaseAuth.Database;
+﻿using BaseAuth.AppError;
+using BaseAuth.Database;
 using BaseAuth.Middleware;
 using BaseAuth.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +22,11 @@ public class AccountController(AppDbContext appDbContext, IAccountService accoun
     public IActionResult InitializeAdminAccount()
     {
         var result = accountService.InitializeAdminAccount();
-        if (result == 1)
+        if (result != 1)
         {
-            return Ok("Admin account created");
+            throw new AppException(ErrorCode.AdminAccountAlreadyExists);
         }
 
-        return Ok("Admin account already exists");
+        return Ok("Admin account created");
     }
 }

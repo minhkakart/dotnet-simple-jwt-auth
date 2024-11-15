@@ -10,7 +10,6 @@ namespace BaseAuth.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ResponseWrapped]
 public class AuthController(AppDbContext appDbContext) : AppController
 {
     [HttpPost("login", Name = "Login")]

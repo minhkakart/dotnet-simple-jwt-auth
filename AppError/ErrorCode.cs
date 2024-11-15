@@ -8,8 +8,8 @@ public enum ErrorCode
     Unknown = -1,
     [Description("Thành công.")]
     Success,
-    // [Description("Yêu cầu sai!")]
-    // BadRequest,
+    [Description("Yêu cầu sai!")]
+    BadRequest,
     [Description("Xác thực thất bại.")]
     UnAuthorized,
     [Description("Thiếu quyền try cập.")]
@@ -23,5 +23,7 @@ public enum ErrorCode
     [Description("Không tìm thấy người dùng.")]
     UserNotFound,
     [Description("Thiếu tham số.")]
-    MissingParameter
+    MissingParameter,
+    [Description("Tài khoản admin đã tồn tại.")]
+    AdminAccountAlreadyExists
 }

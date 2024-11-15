@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BaseAuth.Middleware;
 
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class)]
 public class ResponseWrappedAttribute : ActionFilterAttribute
 {
     public ResponseWrappedAttribute()
@@ -32,8 +32,8 @@ public class ResponseWrappedAttribute : ActionFilterAttribute
         
         return new ObjectResult(new ResponseWrapper
         {
-            Data = ex is AppException ? ex.StackTrace : null,
-            Error = new AppError.AppError(ErrorCode.Unknown)
+            Data = ex is AppException ? null : ex.StackTrace,
+            Error = new AppError.AppError((ex as AppException)?.ErrorCode ?? ErrorCode.Unknown)
         });
     }
 }
