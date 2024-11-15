@@ -33,7 +33,7 @@ public class ResponseWrappedAttribute : ActionFilterAttribute
         return new ObjectResult(new ResponseWrapper
         {
             Data = ex is AppException ? ex.StackTrace : null,
-            Error = new AppError.AppError()
+            Error = new AppError.AppError(ErrorCode.Unknown)
         });
     }
 }
