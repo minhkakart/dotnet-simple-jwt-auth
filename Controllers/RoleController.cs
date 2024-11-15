@@ -1,12 +1,13 @@
 ﻿using BaseAuth.Database;
 using BaseAuth.Database.Entity;
+using BaseAuth.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaseAuth.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RoleController(AppDbContext appDbContext) : ControllerBase
+public class RoleController(AppDbContext appDbContext) : AppController
 {
     [HttpGet(Name = "GetRoles")]
     public IEnumerable<string> Get()

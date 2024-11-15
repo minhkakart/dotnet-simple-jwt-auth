@@ -7,7 +7,7 @@ namespace BaseAuth.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccountController(AppDbContext appDbContext, IAccountService accountService) : ControllerBase
+public class AccountController(AppDbContext appDbContext, IAccountService accountService) : AppController
 {
     [HttpGet(Name = "GetAccounts")]
     [Authorised(["Admin"])]

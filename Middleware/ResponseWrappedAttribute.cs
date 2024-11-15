@@ -26,7 +26,7 @@ public class ResponseWrappedAttribute : ActionFilterAttribute
             return new ObjectResult(new ResponseWrapper
             {
                 Data = value,
-                Error = new AppError.AppError((ex as AppException)?.ErrorCode ?? ErrorCode.Unknown)
+                Error = new AppError.AppError()
             });
         }
         

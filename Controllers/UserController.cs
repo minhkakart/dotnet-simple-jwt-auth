@@ -9,7 +9,7 @@ namespace BaseAuth.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(AppDbContext appDbContext, IUserService userService) : ControllerBase
+public class UserController(AppDbContext appDbContext, IUserService userService) : AppController
 {
     [HttpGet("get-all-users", Name = "GetAllUsers")]
     [Authorised]
