@@ -15,13 +15,13 @@ public class ResponseWrappedAttribute : ActionFilterAttribute
 
     public override void OnActionExecuted(ActionExecutedContext context)
     {
-        context.ExceptionHandled = true;
         context.Result = OnException(context.Exception, (context.Result as ObjectResult)?.Value);
+        context.ExceptionHandled = true;
     }
     
     public static ObjectResult OnException(Exception? ex, object? value)
     {
-        if (ex != null)
+        if (ex == null)
         {
             return new ObjectResult(new ResponseWrapper
             {
