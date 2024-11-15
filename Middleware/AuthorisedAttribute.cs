@@ -68,7 +68,7 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
         }
         catch (Exception e)
         {
-            context.Result = ResponseWrappedAttribute.OnException(e, e.StackTrace);
+            context.Result = ResponseWrappedAttribute.OnException(e, null);
         }
     }
 
