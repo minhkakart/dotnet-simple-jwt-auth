@@ -11,7 +11,7 @@ public class AppError
     public AppError()
     {
         Code = ErrorCode.Success.GetHashCode();
-        Message = ErrorCode.Success.GetDisplayName();
+        Message = ErrorCode.Success.GetAttributeOfType<DescriptionAttribute>().Description;
     }
     
     public AppError(ErrorCode error)
