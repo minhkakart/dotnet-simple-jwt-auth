@@ -21,13 +21,13 @@ jobs:
       - name: Connect to server using ssh
         run: |
           sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ubuntu@${{ secrets.AWS_SSH_HOST }} "echo Connected"
-          cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
-          git pull
-          sudo docker build -f Dockerfile -t baseauth .
-          sudo docker restart baseauth
-          sudo docker image prune -a -f
-          sudo docker container prune -a -f
-          logout
+            cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
+            git pull
+            sudo docker build -f Dockerfile -t baseauth .
+            sudo docker restart baseauth
+            sudo docker image prune -a -f
+            sudo docker container prune -a -f
+            logout
       - name: Clean up
         run: |
           rm -f /tmp/minhkakartwebserver.pem
