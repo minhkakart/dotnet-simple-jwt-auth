@@ -1,0 +1,22 @@
+name: Deploy AWS
+
+on:
+  push:
+    branches: [ deploy ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to server using ssh
+        run: ssh -i <(echo "${{ secrets.AWS_SSH_KEY }} ") ${{ secrets.AWS_SSH_HOST }}
+      - name: Accept for the first time
+        run: echo "yes"
+      - name: Deploy
+        run: |
+          cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
+          git pull
+          sudo docker build -f Dockerfile -t baseauth .
+          sudo docker restart baseauth
+          sudo docker image prune -a -f
+          sudo docker container prune -a -f
