@@ -19,7 +19,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> /home/runner/.ssh/known_hosts
         
       - name: Connect to server using ssh
-        run: sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
+        run: ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
       - name: Accept for the first time
         run: echo "yes"
       - name: Deploy
