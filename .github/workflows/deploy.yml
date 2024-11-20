@@ -8,13 +8,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Connect to server using ssh
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up SSH key and known_hosts
         run: |
           echo "-----BEGIN RSA PRIVATE KEY-----
             ${{ secrets.AWS_SSH_KEY }}
             -----END RSA PRIVATE KEY-----" > /tmp/temp_key.pem
           chmod 400 /tmp/temp_key.pem
-          ssh -i "/tmp/temp_key.pem" ${{ secrets.AWS_SSH_HOST }}
+          ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> ~/.ssh/known_hosts
+        
+      - name: Connect to server using ssh
+        run: ssh -T -i "/tmp/temp_key.pem" ${{ secrets.AWS_SSH_HOST }}
       - name: Accept for the first time
         run: echo "yes"
       - name: Deploy
