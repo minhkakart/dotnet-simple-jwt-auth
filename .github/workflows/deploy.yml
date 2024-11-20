@@ -13,13 +13,13 @@ jobs:
         
       - name: Set up SSH key and known_hosts
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/minhkakartwebserver.pem
-          chmod 400 ~/.ssh/minhkakartwebserver.pem
-          ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> ~/.ssh/known_hosts
+          sudo mkdir -p ~/.ssh
+          sudo echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/minhkakartwebserver.pem
+          sudo chmod 400 ~/.ssh/minhkakartwebserver.pem
+          sudo ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> ~/.ssh/known_hosts
         
       - name: Connect to server using ssh
-        run: ssh -i "~/.ssh/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
+        run: sudo ssh -i "~/.ssh/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
       - name: Accept for the first time
         run: echo "yes"
       - name: Deploy
