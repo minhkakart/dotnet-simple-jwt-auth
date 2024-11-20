@@ -21,7 +21,7 @@ jobs:
       - name: Connect to server using ssh
         run: |
           sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ubuntu@${{ secrets.AWS_SSH_HOST }} "echo Connected"
-            cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
+            cd ~/dotnetprj/dotnet-simple-jwt-auth/
             git pull
             sudo docker build -f Dockerfile -t baseauth .
             sudo docker restart baseauth
