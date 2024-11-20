@@ -26,7 +26,7 @@ jobs:
             git checkout deploy;
             git pull;
             sudo docker stop baseauth;
-            docker system prune -a --volumes -f;
+            sudo docker system prune -a --volumes -f;
             sudo docker build -f Dockerfile -t baseauth .;
             sudo docker run -p 8080:8080 --name baseauth baseauth || sudo docker restart baseauth;
             exit;
