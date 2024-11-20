@@ -13,10 +13,10 @@ jobs:
         
       - name: Set up SSH key and known_hosts
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > /minhkakartwebserver.pem
-          chmod 400 ~/.ssh/minhkakartwebserver.pem
-          ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> ~/.ssh/known_hosts
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > /home/runner/minhkakartwebserver.pem
+          chmod 400 /home/runner/minhkakartwebserver.pem
+          ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> /home/runner/.ssh/known_hosts
         
       - name: Connect to server using ssh
         run: ssh -i "/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
@@ -36,3 +36,4 @@ jobs:
           rm -f /tmp/minhkakartwebserver.pem
           rm -f ~/.ssh/minhkakartwebserver.pem
           rm -f /minhkakartwebserver.pem
+          rm -f /home/runner/minhkakartwebserver.pem
