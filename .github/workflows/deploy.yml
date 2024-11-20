@@ -13,6 +13,7 @@ jobs:
         
       - name: Set up SSH key and known_hosts
         run: |
+          mkdir -p ~/.ssh
           echo "-----BEGIN RSA PRIVATE KEY-----
             ${{ secrets.AWS_SSH_KEY }}
             -----END RSA PRIVATE KEY-----" > /tmp/temp_key.pem
