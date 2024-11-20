@@ -14,12 +14,12 @@ jobs:
       - name: Set up SSH key and known_hosts
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/temp_key.pem
-          chmod 400 ~/.ssh/temp_key.pem
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/minhkakartwebserver.pem
+          chmod 400 ~/.ssh/minhkakartwebserver.pem
           ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> ~/.ssh/known_hosts
         
       - name: Connect to server using ssh
-        run: sudo ssh -T -i "~/.ssh/temp_key.pem" ${{ secrets.AWS_SSH_HOST }}
+        run: sudo ssh -i "~/.ssh/minhkakartwebserver.pem" ${{ secrets.AWS_SSH_HOST }} "echo Connected"
       - name: Accept for the first time
         run: echo "yes"
       - name: Deploy
@@ -33,5 +33,5 @@ jobs:
           logout
       - name: Clean up
         run: |
-          rm -f /tmp/temp_key.pem
-          rm -f ~/.ssh/temp_key.pem
+          rm -f /tmp/minhkakartwebserver.pem
+          rm -f ~/.ssh/minhkakartwebserver.pem
