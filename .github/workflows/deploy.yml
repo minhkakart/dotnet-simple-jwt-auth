@@ -8,21 +8,30 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up SSH key and known_hosts
+        run: |
+          mkdir -p /home/runner/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > /home/runner/minhkakartwebserver.pem
+          chmod 400 /home/runner/minhkakartwebserver.pem
+          ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> /home/runner/.ssh/known_hosts
+        
       - name: Connect to server using ssh
         run: |
-          echo "${{ secrets.AWS_SSH_KEY }}" > /tmp/temp_key.pem
-          chmod 400 /tmp/temp_key.pem
-          ssh -i /tmp/temp_key.pem ${{ secrets.AWS_SSH_HOST }}
-      - name: Accept for the first time
-        run: echo "yes"
-      - name: Deploy
-        run: |
-          cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
-          git pull
-          sudo docker build -f Dockerfile -t baseauth .
-          sudo docker restart baseauth
-          sudo docker image prune -a -f
-          sudo docker container prune -a -f
-          logout
+          sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ubuntu@${{ secrets.AWS_SSH_HOST }} "echo Connected" "
+            cd ~/dotnetprj/dotnet-simple-jwt-auth/;
+            git pull;
+            sudo docker build -f Dockerfile -t baseauth .;
+            sudo docker restart baseauth;
+            sudo docker image prune -a -f;
+            sudo docker container prune -a -f;
+            logout;
+          "
       - name: Clean up
-        run: rm -f /tmp/temp_key.pem
+        run: |
+          rm -f /tmp/minhkakartwebserver.pem
+          rm -f ~/.ssh/minhkakartwebserver.pem
+          rm -f /minhkakartwebserver.pem
+          rm -f /home/runner/minhkakartwebserver.pem
