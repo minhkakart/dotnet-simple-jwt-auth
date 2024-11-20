@@ -19,11 +19,8 @@ jobs:
           ssh-keyscan -H ${{ secrets.AWS_SSH_HOST }} >> /home/runner/.ssh/known_hosts
         
       - name: Connect to server using ssh
-        run: sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ubuntu@${{ secrets.AWS_SSH_HOST }} "echo Connected"
-      - name: Accept for the first time
-        run: echo "yes"
-      - name: Deploy
         run: |
+          sudo ssh -o StrictHostKeyChecking=no -i "/home/runner/minhkakartwebserver.pem" ubuntu@${{ secrets.AWS_SSH_HOST }} "echo Connected"
           cd /home/ubuntu/dotnetprj/dotnet-simple-jwt-auth/
           git pull
           sudo docker build -f Dockerfile -t baseauth .
