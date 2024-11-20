@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Connect to server using ssh
-        run: ssh -i <(echo "${{ secrets.AWS_SSH_KEY }} ") ${{ secrets.AWS_SSH_HOST }}
+        run: |
+          echo "${{ secrets.AWS_SSH_KEY }}" > /tmp/temp_key.pem
+          chmod 400 /tmp/temp_key.pem
+          ssh -i /tmp/temp_key.pem ${{ secrets.AWS_SSH_HOST }}
       - name: Accept for the first time
         run: echo "yes"
       - name: Deploy
@@ -20,3 +23,6 @@ jobs:
           sudo docker restart baseauth
           sudo docker image prune -a -f
           sudo docker container prune -a -f
+          logout
+      - name: Clean up
+        run: rm -f /tmp/temp_key.pem
