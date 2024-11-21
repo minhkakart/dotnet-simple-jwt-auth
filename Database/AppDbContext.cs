@@ -73,7 +73,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             entity.HasMany(e => e.Accounts)
                 .WithMany(e => e.Roles)
-                .UsingEntity(j => j.ToTable("AccountRoles"))
+                .UsingEntity(j => j.ToTable("accountroles"))
                 .HasAlternateKey(e => e.Uuid);
         });
         
