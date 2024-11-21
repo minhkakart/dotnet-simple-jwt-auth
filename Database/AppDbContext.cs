@@ -15,7 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasKey(e => e.Id);
 
-            entity.ToTable("Users");
+            entity.ToTable("users");
 
             entity.HasIndex(e => e.Uuid, "UQ_User_Uuid")
                 .IsUnique();
@@ -36,7 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasKey(e => e.Id);
 
-            entity.ToTable("Accounts");
+            entity.ToTable("accounts");
 
             entity.HasIndex(e => e.UserUuid, "FK_Account_User");
             entity.HasIndex(e => e.Uuid, "UQ_Account_Uuid")
@@ -63,7 +63,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasKey(e => e.Id);
 
-            entity.ToTable("Roles");
+            entity.ToTable("roles");
 
             entity.HasIndex(e => e.Uuid, "UQ_Role_Uuid")
                 .IsUnique();
