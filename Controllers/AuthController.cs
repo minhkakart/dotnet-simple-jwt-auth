@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaseAuth.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 public class AuthController(AppDbContext appDbContext) : AppController
 {
     [HttpPost("login", Name = "Login")]
