@@ -1,4 +1,4 @@
-﻿using BaseAuth.AppError;
+﻿using BaseAuth.Application;
 using BaseAuth.Database;
 using BaseAuth.Manager;
 using BaseAuth.Middleware;
@@ -19,7 +19,8 @@ public class AuthController(AppDbContext appDbContext) : AppController
         }
 
         // Check user's account
-        var account = await appDbContext.Accounts.Include(acc => acc.Roles)
+        var account = await appDbContext.Accounts
+            .Include(acc => acc.Roles)
             .FirstOrDefaultAsync(acc => acc.Username == request.Username);
 
         if (account == null || !BCrypt.Net.BCrypt.Verify(request.Password, account.Password))
@@ -30,6 +31,7 @@ public class AuthController(AppDbContext appDbContext) : AppController
         var accountRoles = account.Roles.Select(r => r.Name).ToList();
         List<KeyValuePair<string, object>> claims = [];
         claims.AddRange([
+            new KeyValuePair<string, object>("user_uuid", account.UserUuid),
             new KeyValuePair<string, object>("acc_uuid", account.Uuid),
             new KeyValuePair<string, object>("roles", accountRoles)
         ]);

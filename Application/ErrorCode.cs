@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace BaseAuth.AppError;
+namespace BaseAuth.Application;
 
 public enum ErrorCode
 {

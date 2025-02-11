@@ -13,17 +13,30 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id);
-
             entity.ToTable("users");
+
+            entity.HasKey(e => e.Id);
 
             entity.HasIndex(e => e.Uuid, "UQ_User_Uuid")
                 .IsUnique();
 
-            entity.Property(e => e.Id).HasColumnType("int(11)").IsRequired();
-            entity.Property(e => e.Uuid).HasColumnType("CHAR(100)").IsRequired();
-            entity.Property(e => e.FirstName).HasColumnType("VARCHAR(100)").IsRequired();
-            entity.Property(e => e.LastName).HasColumnType("VARCHAR(100)").IsRequired();
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("int(11)")
+                .IsRequired();
+            entity.Property(e => e.Uuid)
+                .HasColumnName("uuid")
+                .HasColumnType("CHAR(36)")
+                .HasDefaultValueSql("(UUID())")
+                .IsRequired();
+            entity.Property(e => e.FirstName)
+                .HasColumnName("first_name")
+                .HasColumnType("VARCHAR(100)")
+                .IsRequired();
+            entity.Property(e => e.LastName)
+                .HasColumnName("last_name")
+                .HasColumnType("VARCHAR(100)")
+                .IsRequired();
 
             entity.HasOne(e => e.Account)
                 .WithOne(e => e.User)
@@ -34,18 +47,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id);
-
             entity.ToTable("accounts");
+
+            entity.HasKey(e => e.Id);
 
             entity.HasIndex(e => e.UserUuid, "FK_Account_User");
             entity.HasIndex(e => e.Uuid, "UQ_Account_Uuid")
                 .IsUnique();
 
-            entity.Property(e => e.Uuid).HasColumnType("CHAR(100)").IsRequired();
-            entity.Property(e => e.UserUuid).HasColumnType("CHAR(100)").IsRequired();
-            entity.Property(e => e.Username).HasColumnType("VARCHAR(100)").IsRequired();
-            entity.Property(e => e.Password).HasColumnType("VARCHAR(100)").IsRequired();
+            entity.Property(e => e.Uuid)
+                .HasColumnName("uuid")
+                .HasColumnType("CHAR(36)")
+                .HasDefaultValueSql("(UUID())")
+                .IsRequired();
+            entity.Property(e => e.UserUuid)
+                .HasColumnName("user_uuid")
+                .HasColumnType("CHAR(100)")
+                .IsRequired();
+            entity.Property(e => e.Username)
+                .HasColumnName("username")
+                .HasColumnType("VARCHAR(100)")
+                .IsRequired();
+            entity.Property(e => e.Password)
+                .HasColumnName("password")
+                .HasColumnType("VARCHAR(500)")
+                .IsRequired();
 
             entity.HasOne(e => e.User)
                 .WithOne(e => e.Account)
@@ -55,25 +81,32 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             entity.HasMany(e => e.Roles)
                 .WithMany(e => e.Accounts)
-                .UsingEntity(j => j.ToTable("accountroles"))
+                .UsingEntity(j => j.ToTable("account_roles"))
                 .HasAlternateKey(e => e.Uuid);
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id);
-
             entity.ToTable("roles");
+
+            entity.HasKey(e => e.Id);
 
             entity.HasIndex(e => e.Uuid, "UQ_Role_Uuid")
                 .IsUnique();
 
-            entity.Property(e => e.Uuid).HasColumnType("CHAR(100)").IsRequired();
-            entity.Property(e => e.Name).HasColumnType("VARCHAR(100)").IsRequired();
+            entity.Property(e => e.Uuid)
+                .HasColumnName("uuid")
+                .HasColumnType("CHAR(36)")
+                .HasDefaultValueSql("(UUID())")
+                .IsRequired();
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .HasColumnType("VARCHAR(100)")
+                .IsRequired();
 
             entity.HasMany(e => e.Accounts)
                 .WithMany(e => e.Roles)
-                .UsingEntity(j => j.ToTable("accountroles"))
+                .UsingEntity(j => j.ToTable("account_roles"))
                 .HasAlternateKey(e => e.Uuid);
         });
         

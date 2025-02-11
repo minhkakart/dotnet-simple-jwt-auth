@@ -1,4 +1,4 @@
-﻿using BaseAuth.AppError;
+﻿using BaseAuth.Application;
 using BaseAuth.Database;
 using BaseAuth.Middleware;
 using BaseAuth.Service;
@@ -17,7 +17,7 @@ public class AccountController(AppDbContext appDbContext, IAccountService accoun
     }
 
     [HttpGet("initialize", Name = "InitializeAdminAccount")]
-    [Authorised("Admin")]
+    // [Authorised("Admin")]
     public IActionResult InitializeAdminAccount()
     {
         var result = accountService.InitializeAdminAccount();

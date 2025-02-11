@@ -1,4 +1,4 @@
-﻿namespace BaseAuth.AppError;
+﻿namespace BaseAuth.Application;
 
 public class AppException (ErrorCode errorCode) : Exception
 {

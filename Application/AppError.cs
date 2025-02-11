@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Microsoft.OpenApi.Extensions;
 
-namespace BaseAuth.AppError;
+namespace BaseAuth.Application;
 
 public class AppError
 {

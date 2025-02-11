@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using BaseAuth.AppError;
+using BaseAuth.Application;
 using BaseAuth.Manager;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.OpenApi.Models;
@@ -43,18 +43,19 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
             }
 
             // Get roles from token
-            var claimList = TokenManager.Claims(token);
-            if (claimList.FirstOrDefault(c => c.Key == "roles").Value is JArray claimRoles)
+            var userInfo = TokenManager.ClaimUserInfo(token);
+            if (userInfo.Roles.Count > 0)
             {
                 // Normalize claimed roles to lowercase
-                var userRoles = claimRoles.Select(r => r.ToString().ToLower()).ToList();
-                if (!userRoles.Intersect(GetRoles()).Any())
+                if (!userInfo.Roles.Select(r => r.ToString().ToLower()).ToList().Intersect(GetRoles()).Any())
                 {
                     throw new AppException(ErrorCode.Forbidden); 
                 }
 
                 // Create a new identity with the roles
-                var claims = userRoles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+                var claims = userInfo.Roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+                var userInfoClaim = new Claim(ClaimTypes.UserData, JObject.FromObject(userInfo).ToString());
+                claims.Add(userInfoClaim);
                 context.HttpContext.User.AddIdentity(new ClaimsIdentity(claims, "Bearer"));
                 // Todo: Add more claims if needed
 

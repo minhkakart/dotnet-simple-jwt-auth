@@ -22,6 +22,15 @@ public class AccountService(AppDbContext appDbContext) : IAccountService
 
     public int InitializeAdminAccount()
     {
+        if (appDbContext.Roles.FirstOrDefault(role => role.Name.Equals("Admin")) == null)
+        {
+            appDbContext.Roles.Add(new Role
+            {
+                Name = "Admin"
+            });
+            appDbContext.SaveChanges();
+        }
+        
         var adminRole = appDbContext.Roles.Include(role => role.Accounts).First(role => role.Name == "Admin");
         
         if (adminRole.Accounts == null || adminRole.Accounts.Count == 0)
