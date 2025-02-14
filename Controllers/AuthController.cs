@@ -11,6 +11,7 @@ namespace BaseAuth.Controllers;
 public class AuthController(AppDbContext appDbContext) : AppController
 {
     [HttpPost("login", Name = "Login")]
+    
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
@@ -47,6 +48,19 @@ public class AuthController(AppDbContext appDbContext) : AppController
         var token = HttpContext.Request.Headers.Authorization.ToString().Substring("Bearer ".Length).Trim();
 
         TokenManager.RevokeToken(token);
+
+        return Ok();
+    }
+    
+    [HttpPost("refresh", Name = "Refresh")]
+    [Authorised]
+    public IActionResult Refresh()
+    {
+        var token = HttpContext.Request.Headers.Authorization.ToString()[7..].Trim();
+        if (!TokenManager.ValidateToken(token, TokenType.Refresh))
+        {
+            throw new AppException(ErrorCode.InvalidRefreshToken);
+        }
 
         return Ok();
     }

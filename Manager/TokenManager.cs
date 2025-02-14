@@ -53,6 +53,13 @@ public class Token
     public DateTime RefreshExpiresAt { get; init; }
 }
 
+public class TokenClaims
+{
+    public string TokenHash { get; set; } = "";
+    public TokenType Type { get; set; }
+    public long ExpiresAt { get; set; }
+}
+
 public class UserTokenInfo
 {
     public string UserUuid { get; set; } = "";
@@ -62,8 +69,9 @@ public class UserTokenInfo
 
 public static class TokenManager
 {
-    // private static readonly SemaphoreSlim 
-    // private static readonly SemaphoreSlim 
+    private static readonly List<string> Blacklist = [];
+    private static readonly List<string> RefreshList = [];
+    
     private static readonly object Lock = new();
 
     /// <summary>
@@ -180,7 +188,7 @@ public static class TokenManager
     /// A dictionary of claims from the given token
     /// </returns>
     /// <seealso cref="Token"/>
-    private static IDictionary<string, object> Claims(string token)
+    private static Dictionary<string, object> Claims(string token)
     {
         return JwtBuilder.Create()
             .WithAlgorithm(new HMACSHA256Algorithm())
@@ -189,6 +197,19 @@ public static class TokenManager
             .WithSecret("secret")
             .MustVerifySignature()
             .Decode<Dictionary<string, object>>(token);
+    }
+    
+    public static TokenClaims ClaimToken(string token)
+    {
+        var claims = Claims(token);
+        var type = (TokenType)int.Parse(claims["type"].ToString());
+        var expiresAt = long.Parse(claims["expiredAt"].ToString() ?? "0");
+        return new TokenClaims
+        {
+            TokenHash = BCrypt.Net.BCrypt.HashPassword(token),
+            Type = type,
+            ExpiresAt = expiresAt
+        };
     }
 
     public static UserTokenInfo ClaimUserInfo(string token)
@@ -220,36 +241,47 @@ public static class TokenManager
     /// </returns>
     /// <seealso cref="Token"/>
     /// <seealso cref="TokenType"/>
-    private static bool ValidateToken(string token, TokenType type)
+    public static bool ValidateToken(string token, TokenType type)
     {
         lock (Lock)
         {
             try
             {
                 // Find the token in the list
-                var index = ListTokens.FindIndex(x => x.AccessToken == token || x.RefreshToken == token);
+                // var index = ListTokens.FindIndex(x => x.AccessToken == token || x.RefreshToken == token);
+                //
+                //
+                // if (index == -1)
+                //     return false;
+                //
+                //
+                var tokenClaims = ClaimToken(token);
 
 
-                if (index == -1)
-                    return false;
-
-
-                var tokenInfo = ListTokens[index];
-
-
-                switch (type)
+                // switch (type)
+                // {
+                //     case TokenType.Access:
+                //         if (tokenClaims.AccessExpiresAt < DateTime.UtcNow)
+                //             return false;
+                //         break;
+                //     case TokenType.Refresh:
+                //         if (tokenClaims.RefreshExpiresAt < DateTime.UtcNow)
+                //             return false;
+                //         break;
+                //     default:
+                //         return false;
+                // }
+                if (tokenClaims.Type != type)
                 {
-                    case TokenType.Access:
-                        if (tokenInfo.AccessExpiresAt < DateTime.UtcNow)
-                            return false;
-                        break;
-                    case TokenType.Refresh:
-                        if (tokenInfo.RefreshExpiresAt < DateTime.UtcNow)
-                            return false;
-                        break;
-                    default:
-                        return false;
+                    return false;
                 }
+
+                if (tokenClaims.ExpiresAt < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                {
+                    return false;
+                }
+                
+                // if ()
 
                 var jwt = Claims(token);
 

@@ -19,4 +19,10 @@ public class AppError
         Code = error.GetHashCode();
         Message = error.GetAttributeOfType<DescriptionAttribute>().Description;
     }
+    
+    public AppError(string message)
+    {
+        Code = ErrorCode.Other.GetHashCode();
+        Message = message;
+    }
 }

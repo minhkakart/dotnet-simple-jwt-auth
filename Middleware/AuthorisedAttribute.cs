@@ -2,13 +2,11 @@
 using BaseAuth.Application;
 using BaseAuth.Manager;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Linq;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace BaseAuth.Middleware;
 
-public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute, IOperationFilter
+public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute
 {
     public AuthorisedAttribute() : this([])
     {
@@ -35,6 +33,11 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
             {
                 throw new AppException(ErrorCode.UnAuthorized);
             }
+
+            // if (TokenManager.GetTokenType(token) == TokenType.Refresh)
+            // {
+            //     Console.WriteLine("Refresh token is not allowed");
+            // }
 
             if (roles.Length == 0)
             {
@@ -71,10 +74,5 @@ public class AuthorisedAttribute(params string[] roles) : ActionFilterAttribute,
         {
             context.Result = ResponseWrappedAttribute.OnException(e, null);
         }
-    }
-
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
-    {
-        // throw new NotImplementedException();
     }
 }
