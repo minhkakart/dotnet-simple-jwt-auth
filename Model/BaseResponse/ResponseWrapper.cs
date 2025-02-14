@@ -2,8 +2,8 @@
 
 namespace BaseAuth.Model.BaseResponse;
 
-public class ResponseWrapper
+public class ResponseWrapper<T>
 {
-    public object? Data { get; set; }
+    public T Data { get; set; }
     public AppError Error { get; set; } = new(ErrorCode.Success);
 }

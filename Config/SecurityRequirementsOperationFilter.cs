@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using BaseAuth.Extension;
 using BaseAuth.Middleware;
-using Microsoft.EntityFrameworkCore.Internal;
+using BaseAuth.Util;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -31,34 +32,44 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             };
         }
 
-        // operation.RequestBody ??= operation.RequestBody = new OpenApiRequestBody
-        operation.RequestBody = operation.RequestBody = new OpenApiRequestBody
+        var requestBodyAttribute = context.MethodInfo.GetCustomAttribute<RequestBodyAttribute>();
+        if (requestBodyAttribute != null)
         {
-            Content = new Dictionary<string, OpenApiMediaType>()
-        };
-
-        operation.RequestBody.Content.Add("mytype", new OpenApiMediaType
-        {
-            Schema = new OpenApiSchema
+            Console.WriteLine(new TypeMigrator().ConvertClassToTypeScript(requestBodyAttribute.Type));
+            operation.RequestBody ??= operation.RequestBody = new OpenApiRequestBody
             {
-                Type = "string",
-                Example = new OpenApiString("my example")
-            }
-        });
+                Content = new Dictionary<string, OpenApiMediaType>()
+            };
 
-        Console.Write(context.MethodInfo.Name + ": ");
-        var parameters = context.MethodInfo.GetParameters();
-        if (parameters.Length == 0)
-        {
-            Console.WriteLine("No parameters");
-            return;
+            operation.RequestBody.Content.Add("typescript/interface", new OpenApiMediaType
+            {
+                Schema = new OpenApiSchema
+                {
+                    Type = "string",
+                    Example = new OpenApiString(new TypeMigrator().ConvertClassToTypeScript(requestBodyAttribute.Type))
+                }
+            });
         }
-
-        foreach (var parameterInfo in context.MethodInfo.GetParameters())
+        
+        var responseBodyAttribute = context.MethodInfo.GetCustomAttribute<ResponseBodyAttribute>();
+        if (responseBodyAttribute != null)
         {
-            Console.Write(parameterInfo.Name + ": " + parameterInfo.GetModifiedParameterType().Name + ", "); 
+            var responseWrapperType = responseBodyAttribute.Type;
+            operation.Responses ??= new OpenApiResponses();
+            operation.Responses["200"] ??= new OpenApiResponse
+            {
+                Description = "Success",
+                Content = new Dictionary<string, OpenApiMediaType>()
+            };
+            
+            operation.Responses["200"].Content.Add("typescript/interface", new OpenApiMediaType
+            {
+                Schema = new OpenApiSchema
+                {
+                    Type = "string",
+                    Example = new OpenApiString(new TypeMigrator().ConvertClassToTypeScript(responseWrapperType))  
+                }
+            });
         }
-
-        Console.WriteLine();
     }
 }

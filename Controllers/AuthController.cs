@@ -1,5 +1,6 @@
 ﻿using BaseAuth.Application;
 using BaseAuth.Database;
+using BaseAuth.Extension;
 using BaseAuth.Manager;
 using BaseAuth.Middleware;
 using BaseAuth.Model.Request;
@@ -11,7 +12,7 @@ namespace BaseAuth.Controllers;
 public class AuthController(AppDbContext appDbContext) : AppController
 {
     [HttpPost("login", Name = "Login")]
-    
+    [RequestBody(typeof(LoginRequest))]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
