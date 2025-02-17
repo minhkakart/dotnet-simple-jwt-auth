@@ -1,4 +1,4 @@
-﻿using BaseAuth.AppError;
+﻿using BaseAuth.Application;
 using BaseAuth.Model.BaseResponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -23,17 +23,17 @@ public class ResponseWrappedAttribute : ActionFilterAttribute
     {
         if (ex == null)
         {
-            return new ObjectResult(new ResponseWrapper
+            return new ObjectResult(new ResponseWrapper<object>
             {
                 Data = value,
-                Error = new AppError.AppError()
+                Error = new AppError()
             });
         }
         
-        return new ObjectResult(new ResponseWrapper
+        return new ObjectResult(new ResponseWrapper<object>
         {
             Data = ex is AppException ? null : ex.StackTrace,
-            Error = new AppError.AppError((ex as AppException)?.ErrorCode ?? ErrorCode.Unknown)
+            Error = new AppError((ex as AppException)?.ErrorCode ?? ErrorCode.Unknown)
         });
     }
 }

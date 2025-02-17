@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Microsoft.OpenApi.Extensions;
 
-namespace BaseAuth.AppError;
+namespace BaseAuth.Application;
 
 public class AppError
 {
@@ -18,5 +18,11 @@ public class AppError
     {
         Code = error.GetHashCode();
         Message = error.GetAttributeOfType<DescriptionAttribute>().Description;
+    }
+    
+    public AppError(string message)
+    {
+        Code = ErrorCode.Other.GetHashCode();
+        Message = message;
     }
 }

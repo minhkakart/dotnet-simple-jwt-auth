@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel;
 
-namespace BaseAuth.AppError;
+namespace BaseAuth.Application;
 
 public enum ErrorCode
 {
-    [Description("Lỗi không xác định.")]
+    [Description("Lỗi hệ thống!")]
     Unknown = -1,
+    [Description("Lỗi khác.")]
+    Other,
     [Description("Thành công.")]
     Success,
     [Description("Yêu cầu sai!")]
@@ -25,5 +27,7 @@ public enum ErrorCode
     [Description("Thiếu tham số.")]
     MissingParameter,
     [Description("Tài khoản admin đã tồn tại.")]
-    AdminAccountAlreadyExists
+    AdminAccountAlreadyExists,
+    [Description("Refresh token không hợp lệ.")]
+    InvalidRefreshToken
 }

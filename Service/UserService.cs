@@ -1,4 +1,4 @@
-﻿using BaseAuth.AppError;
+﻿using BaseAuth.Application;
 using BaseAuth.Database;
 using BaseAuth.Database.Entity;
 using BaseAuth.Extension;

@@ -1,11 +1,10 @@
 ﻿using BaseAuth.Database;
 using BaseAuth.Database.Entity;
+using BaseAuth.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaseAuth.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 public class RoleController(AppDbContext appDbContext) : AppController
 {
     [HttpGet(Name = "GetRoles")]
@@ -15,6 +14,7 @@ public class RoleController(AppDbContext appDbContext) : AppController
     }
     
     [HttpPost(Name = "CreateRole")]
+    [Authorised("Admin")]
     public async Task<IActionResult> Create([FromBody] string roleName)
     {
         var role = new Role()

@@ -1,4 +1,4 @@
-﻿using BaseAuth.AppError;
+﻿using BaseAuth.Application;
 using BaseAuth.Database;
 using BaseAuth.Middleware;
 using BaseAuth.Service;
@@ -6,12 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BaseAuth.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 public class AccountController(AppDbContext appDbContext, IAccountService accountService) : AppController
 {
     [HttpGet(Name = "GetAccounts")]
-    [Authorised(["Admin"])]
+    [Authorised("Admin")]
     public IEnumerable<string> Get()
     {
         Console.WriteLine("GetAccounts");
@@ -19,6 +17,7 @@ public class AccountController(AppDbContext appDbContext, IAccountService accoun
     }
 
     [HttpGet("initialize", Name = "InitializeAdminAccount")]
+    // [Authorised("Admin")]
     public IActionResult InitializeAdminAccount()
     {
         var result = accountService.InitializeAdminAccount();

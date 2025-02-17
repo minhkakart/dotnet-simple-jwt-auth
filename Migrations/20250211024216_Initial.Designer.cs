@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BaseAuth.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240913161552_Initial")]
+    [Migration("20250211024216_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -36,34 +36,43 @@ namespace BaseAuth.Migrations
 
                     b.HasIndex("RolesId");
 
-                    b.ToTable("AccountRoles", (string)null);
+                    b.ToTable("account_roles", (string)null);
                 });
 
             modelBuilder.Entity("BaseAuth.Database.Entity.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("id");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(500)")
+                        .HasColumnName("password");
 
                     b.Property<string>("UserUuid")
                         .IsRequired()
-                        .HasColumnType("CHAR(100)");
+                        .HasColumnType("CHAR(100)")
+                        .HasColumnName("user_uuid");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("username");
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("CHAR(100)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("CHAR(36)")
+                        .HasColumnName("uuid")
+                        .HasDefaultValueSql("(UUID())");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Uuid");
 
                     b.HasIndex("UserUuid")
                         .IsUnique();
@@ -73,98 +82,72 @@ namespace BaseAuth.Migrations
                     b.HasIndex(new[] { "Uuid" }, "UQ_Account_Uuid")
                         .IsUnique();
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("accounts", (string)null);
                 });
 
             modelBuilder.Entity("BaseAuth.Database.Entity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("id");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("name");
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("CHAR(100)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("CHAR(36)")
+                        .HasColumnName("uuid")
+                        .HasDefaultValueSql("(UUID())");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Uuid");
 
                     b.HasIndex(new[] { "Uuid" }, "UQ_Role_Uuid")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
-                });
-
-            modelBuilder.Entity("BaseAuth.Database.Entity.Token", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountUuid")
-                        .IsRequired()
-                        .HasColumnType("CHAR(100)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int(11)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("Uuid")
-                        .IsRequired()
-                        .HasColumnType("CHAR(100)");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "AccountUuid" }, "FK_Token_Account");
-
-                    b.HasIndex(new[] { "Uuid" }, "UQ_Token_Uuid")
-                        .IsUnique();
-
-                    b.HasIndex(new[] { "Value" }, "UQ_Token_Value")
-                        .IsUnique();
-
-                    b.ToTable("Tokens", (string)null);
+                    b.ToTable("roles", (string)null);
                 });
 
             modelBuilder.Entity("BaseAuth.Database.Entity.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)");
+                        .HasColumnType("int(11)")
+                        .HasColumnName("id");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("first_name");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("last_name");
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("CHAR(100)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("CHAR(36)")
+                        .HasColumnName("uuid")
+                        .HasDefaultValueSql("(UUID())");
 
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "Uuid" }, "UQ_User_Uuid")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("AccountRole", b =>
@@ -193,24 +176,6 @@ namespace BaseAuth.Migrations
                         .HasConstraintName("FK_Account_User");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BaseAuth.Database.Entity.Token", b =>
-                {
-                    b.HasOne("BaseAuth.Database.Entity.Account", "Account")
-                        .WithMany("Tokens")
-                        .HasForeignKey("AccountUuid")
-                        .HasPrincipalKey("Uuid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Token_Account");
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("BaseAuth.Database.Entity.Account", b =>
-                {
-                    b.Navigation("Tokens");
                 });
 
             modelBuilder.Entity("BaseAuth.Database.Entity.User", b =>
